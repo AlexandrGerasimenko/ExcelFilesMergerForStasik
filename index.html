@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excel Files Merger for Stasik</title>
     <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/bg.css">
 </head>
 <body>
-<h1>Excel Files Merger for Stasik</h1>
+<div class="wrap">
+    <h1>Excel Files Merger for <span class="strobe">Stasik</span></h1>
 <div class="container">
     <button id="selectFile1">Select Mystery File</button>
     <div id="file1Label" class="file-label"></div>
@@ -15,8 +17,11 @@
     <div id="file2Label" class="file-label"></div>
     <button id="mergeBtn">Merge Files</button>
 </div>
+</div>
+<canvas id='c'></canvas>
 
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <script src="./js/main.js"></script>
+<script src="./js/bg.js"></script>
 </body>
 </html>

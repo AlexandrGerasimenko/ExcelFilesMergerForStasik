@@ -1,8 +1,12 @@
 body {
     font-family: Arial, sans-serif;
+}
+
+.wrap {
     max-width: 500px;
     margin: 0 auto;
-    padding: 20px;
+    z-index: 1;
+    position: relative;
 }
 
 .container {
@@ -19,10 +23,31 @@ button {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    transition: all 0.1s linear;
+}
+
+.strobe {
+        animation: strobe 0.1s infinite;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #ffffff !important;
+    color: #4CAF50;
+    border-color: red;
+}
+
+@keyframes strobe {
+    0% { background-color: #ff0000; color: #00ff00; }
+    10% { background-color: #00ff00; color: #0000ff; }
+    20% { background-color: #0000ff; color: #ffff00; }
+    30% { background-color: #ffff00; color: #ff00ff; }
+    40% { background-color: #ff00ff; color: #00ffff; }
+    50% { background-color: #00ffff; color: #ff0000; }
+    60% { background-color: #ff0000; color: #ffffff; }
+    70% { background-color: #ffffff; color: #000000; }
+    80% { background-color: #000000; color: #ff00ff; }
+    90% { background-color: #ff00ff; color: #00ff00; }
+    100% { background-color: #00ff00; color: #0000ff; }
 }
 
 .file-label {
