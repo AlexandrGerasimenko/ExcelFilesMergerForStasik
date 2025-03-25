@@ -263,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Save file
             XLSX.writeFile(wb, fileName);
-            alert(`File successfully saved: ${fileName}`);
 
         } catch (error) {
             alert(`Error: ${error.message}`);
