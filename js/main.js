@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Create hidden file inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Создаем скрытые input'ы для файлов
     const file1Input = document.createElement('input');
     file1Input.type = 'file';
     file1Input.accept = '.xlsx,.xls';
@@ -19,299 +19,189 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(file2Input);
     document.body.appendChild(file3Input);
 
-    // Variables to store file data
-    let file1 = null;
-    let file2 = null;
-    let file3 = null;
-    let df1 = null; // Data from first file
-    let df2 = null; // Data from second file
-    let df3 = null; // Data from third file
+    // Переменные для хранения данных
+    let df1 = [], df2 = [], df3 = [];
+    let filesReady = 0;
+    const totalFiles = 3;
 
-    // Event listeners for buttons
-    document.getElementById('selectFile1').addEventListener('click', function () {
-        file1Input.click();
-    });
+    // Обновление состояния кнопки
+    function updateMergeButton() {
+        document.getElementById('mergeBtn').disabled = filesReady !== totalFiles;
+    }
 
-    document.getElementById('selectFile2').addEventListener('click', function () {
-        file2Input.click();
-    });
+    // Обработчики кнопок выбора файлов
+    document.getElementById('selectFile1').addEventListener('click', () => file1Input.click());
+    document.getElementById('selectFile2').addEventListener('click', () => file2Input.click());
+    document.getElementById('selectFile3').addEventListener('click', () => file3Input.click());
 
-    document.getElementById('selectFile3').addEventListener('click', function () {
-        file3Input.click();
-    });
+    // Общая функция обработки файлов
+    function handleFileSelect(input, labelId, dataArray) {
+        return function(e) {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const label = document.getElementById(labelId);
+                label.textContent = `Selected: ${file.name}`;
+                label.classList.add('loaded');
 
-    // Handle first file selection
-    file1Input.addEventListener('change', function (e) {
-        if (e.target.files.length > 0) {
-            file1 = e.target.files[0];
-            document.getElementById('file1Label').textContent = `Selected file: ${file1.name}`;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        dataArray.length = 0;
+                        dataArray.push(...XLSX.utils.sheet_to_json(sheet, {header: 1}));
+                        filesReady++;
+                        updateMergeButton();
+                    } catch (error) {
+                        label.textContent = `Error: ${file.name}`;
+                        label.classList.add('error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        };
+    }
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                df1 = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-            };
-            reader.readAsArrayBuffer(file1);
-        }
-    });
+    // Назначаем обработчики
+    file1Input.addEventListener('change', handleFileSelect(file1Input, 'file1Label', df1));
+    file2Input.addEventListener('change', handleFileSelect(file2Input, 'file2Label', df2));
+    file3Input.addEventListener('change', handleFileSelect(file3Input, 'file3Label', df3));
 
-    // Handle second file selection
-    file2Input.addEventListener('change', function (e) {
-        if (e.target.files.length > 0) {
-            file2 = e.target.files[0];
-            document.getElementById('file2Label').textContent = `Selected file: ${file2.name}`;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                df2 = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-            };
-            reader.readAsArrayBuffer(file2);
-        }
-    });
-
-    // Handle third file selection
-    file3Input.addEventListener('change', function (e) {
-        if (e.target.files.length > 0) {
-            file3 = e.target.files[0];
-            document.getElementById('file3Label').textContent = `Selected file: ${file3.name}`;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                df3 = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-            };
-            reader.readAsArrayBuffer(file3);
-        }
-    });
-
-    // Merge button click handler
-    document.getElementById('mergeBtn').addEventListener('click', function () {
-        if (!df1 || !df2 || !df3 || df1.length === 0 || df2.length === 0 || df3.length === 0) {
-            alert('Not all files are selected or they are empty');
-            return;
-        }
+    // Основная функция обработки
+    document.getElementById('mergeBtn').addEventListener('click', async () => {
+        if (filesReady !== totalFiles) return;
 
         try {
-            // Remove empty rows from all files
+            // Обработка данных (оригинальная логика)
             df1 = df1.filter(row => row.some(cell => cell !== null && cell !== ''));
             df2 = df2.filter(row => row.some(cell => cell !== null && cell !== ''));
             df3 = df3.filter(row => row.some(cell => cell !== null && cell !== ''));
 
-            // Remove header rows
-            df1 = df1.slice(1); // Remove first row from first file
-            df2 = df2.slice(2); // Remove first two rows from second file
-            df3 = df3.slice(2); // Remove first row from third file (adjust as needed)
+            df1 = df1.slice(1);
+            df2 = df2.slice(2);
+            df3 = df3.slice(2);
 
-            // Process rows with only "Артикул" (SKU) and empty values
-            df1 = df1.map((item) => {
-                if (item[0] === 'Артикул' && !item[1] && !item[2]) {
-                    return [item[item.length - 1]];
-                }
+            df1 = df1.map(item => {
+                if (item[0] === 'Артикул' && !item[1] && !item[2]) return [item[item.length - 1]];
                 return item;
             });
 
-            df2 = df2.map((item) => {
-                if (item[0] && !item[4] && !item[6]) {
-                    return [item[0]];
-                }
+            df2 = df2.map(item => {
+                if (item[0] && !item[4] && !item[6]) return [item[0]];
                 return item;
             });
 
-            // Process third file data (adjust column indexes as needed)
-            df3 = df3.map((item) => {
-                if (item[0] && !item[1] && !item[2]) {
-                    return [item[0]];
-                }
+            df3 = df3.map(item => {
+                if (item[0] && !item[1] && !item[2]) return [item[0]];
                 return item;
             });
 
-            // Extract needed columns by index
-            const cycloneColumn = df1.map(row => row[0]); // Column A from file 1
-            const mysteryColumn = df2.map(row => row[2] ?? row[0]); // Column C (fallback to A) from file 2
-            const thirdFileColumn = df3.map(row => row[0] ? row[0].toString() : row[0]); // Column A from file 3 (adjust as needed)
+            // Извлечение колонок (оригинальная логика)
+            const cycloneColumn = df1.map(row => row[0]);
+            const mysteryColumn = df2.map(row => row[2] ?? row[0]);
+            const thirdFileColumn = df3.map(row => row[0]?.toString() ?? '');
 
-            const fourthColumnFile1 = df1.map(row => row[3]); // Column D from first file
-            const secondColumnFile2 = df2.map(row => row[2] ? row[0] : ''); // Column B from second file
-            const thirdFileBrandColumn = df3.map(row => row[1]); // Column B from third file (adjust as needed)
+            const fourthColumnFile1 = df1.map(row => row[3]);
+            const secondColumnFile2 = df2.map(row => row[2] ? row[0] : '');
+            const thirdFileBrandColumn = df3.map(row => row[1]);
 
-            const fifthColumnFile1 = df1.map(row => row[4]); // Column E from first file
-            const seventhColumnFile1 = df1.map(row => row[6]); // Column G from first file
-            const fifthColumnFile2 = df2.map(row => row[4]); // Column E from second file
-            const thirdFileModelColumn = df3.map(row => row[2]); // Column C from third file (adjust as needed)
+            const fifthColumnFile1 = df1.map(row => row[4]);
+            const seventhColumnFile1 = df1.map(row => row[6]);
+            const fifthColumnFile2 = df2.map(row => row[4]);
+            const thirdFileModelColumn = df3.map(row => row[2]);
 
-            const ninthColumnFile1 = df1.map(row => row[8]); // Column I from first file
-            const seventhColumnFile2 = df2.map(row => row[6]); // Column G from second file
-            const thirdFilePriceColumn = df3.map(row => row[5] ? Math.ceil((row[5] * 110)) / 100 : ''); // Column F from third file (adjust as needed)
-            const thirdFileRetailPriceColumn = df3.map(row => row[6]); // Column F from third file (adjust as needed)
+            const ninthColumnFile1 = df1.map(row => row[8]);
+            const seventhColumnFile2 = df2.map(row => row[6]);
+            const thirdFilePriceColumn = df3.map(row => row[5] ? Math.ceil((row[5] * 110))/100 : '');
+            const thirdFileRetailPriceColumn = df3.map(row => row[6]);
 
-            const plusSymbolColumn = df1.map(i => isNaN(i[6]) ? '' : '+'); // "+" symbol for first file rows
-            const tenthColumnFile2 = df2.map(row => row[9]); // Column J from second file
-            const thirdFileAvailabilityColumn = df3.map(row => row[1] ? isNaN(row[3]) ? '-' : '+' : ''); // Column E from third file (adjust as needed)
+            const plusSymbolColumn = df1.map(i => isNaN(i[6]) ? '' : '+');
+            const tenthColumnFile2 = df2.map(row => row[9]);
+            const thirdFileAvailabilityColumn = df3.map(row => row[1] ? isNaN(row[3]) ? '-' : '+' : '');
 
-            // Combine columns from all three files
-            const combinedColumnA = cycloneColumn.concat(mysteryColumn, thirdFileColumn);
-            const combinedColumnB = fourthColumnFile1.concat(Array(mysteryColumn.length).fill(''));
-            const combinedColumnC = fifthColumnFile1.concat(secondColumnFile2);
-            const combinedColumnD = seventhColumnFile1.concat(fifthColumnFile2, thirdFilePriceColumn);
-            const combinedColumnE = ninthColumnFile1.concat(seventhColumnFile2, thirdFileRetailPriceColumn);
-            const combinedColumnPlus = plusSymbolColumn.concat(tenthColumnFile2, thirdFileAvailabilityColumn);
+            // Объединение данных
+            const combined = {
+                A: [...cycloneColumn, ...mysteryColumn, ...thirdFileColumn],
+                B: [...fourthColumnFile1, ...Array(mysteryColumn.length).fill('')],
+                C: [...fifthColumnFile1, ...secondColumnFile2],
+                D: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn],
+                E: [...ninthColumnFile1, ...seventhColumnFile2, ...thirdFileRetailPriceColumn],
+                F: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn]
+            };
 
-            // Create new data array
-            const resultData = [];
-            const maxLength = Math.max(
-                combinedColumnA.length,
-                combinedColumnB.length,
-                combinedColumnC.length,
-                combinedColumnD.length,
-                combinedColumnE.length,
-                combinedColumnPlus.length
-            );
+            // Создаем книгу Excel
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Combined Data');
 
-            // Add headers
-            resultData.push([
-                'Артикул', 'Бренд', 'Модель', 'Оптова USD', 'Роздрібна UAH', 'Наявність'
-            ]);
+            // Добавляем заголовки
+            worksheet.addRow(['Артикул', 'Бренд', 'Модель', 'Оптова USD', 'Роздрібна UAH', 'Наявність']);
 
-            // Fill data rows
-            for (let i = 0; i < maxLength; i++) {
-                resultData.push([
-                    i < combinedColumnA.length ? combinedColumnA[i] : '',
-                    i < combinedColumnB.length ? combinedColumnB[i] : '',
-                    i < combinedColumnC.length ? combinedColumnC[i] : '',
-                    i < combinedColumnD.length ? combinedColumnD[i] : '',
-                    i < combinedColumnE.length ? combinedColumnE[i] : '',
-                    i < combinedColumnPlus.length ? combinedColumnPlus[i] : ''
+            // Стили для заголовков
+            worksheet.getRow(1).eachCell(cell => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF8C00' }
+                };
+                cell.font = {
+                    bold: true,
+                    color: { argb: 'FFFFFF' },
+                    size: 14
+                };
+                cell.alignment = {
+                    vertical: 'middle',
+                    horizontal: 'center'
+                };
+            });
+
+            // Добавляем данные
+            const maxLen = Math.max(...Object.values(combined).map(c => c.length));
+            for (let i = 0; i < maxLen; i++) {
+                const row = worksheet.addRow([
+                    combined.A[i] || '',
+                    combined.B[i] || '',
+                    combined.C[i] || '',
+                    combined.D[i] || '',
+                    combined.E[i] || '',
+                    combined.F[i] || ''
                 ]);
-            }
 
-            // Create new Excel workbook
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(resultData);
-
-            // Center alignment style
-            const centerStyle = {
-                alignment: {
-                    horizontal: 'center',
-                    vertical: 'center'
-                }
-            };
-
-            // Header row style (dark orange)
-            const headerStyle = {
-                fill: {
-                    patternType: "solid",
-                    fgColor: {rgb: "FF8C00"} // Dark orange
-                },
-                font: {
-                    bold: true,
-                    sz: 14 // Larger font size
-                }
-            };
-
-            // Single-cell row style (yellow)
-            const singleCellStyle = {
-                fill: {
-                    patternType: "solid",
-                    fgColor: {rgb: "FFFF00"} // Yellow
-                },
-                font: {
-                    bold: true,
-                    sz: 12 // Larger font size
-                }
-            };
-
-            // Apply styles to all cells
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = {c: C, r: R};
-                    const cell_ref = XLSX.utils.encode_cell(cell_address);
-
-                    if (!ws[cell_ref]) continue;
-
-                    // Base style (centering)
-                    ws[cell_ref].s = {...centerStyle};
-
-                    // Header row style
-                    if (R === 0) {
-                        ws[cell_ref].s = {...ws[cell_ref].s, ...headerStyle};
-                    }
-
-                    // Single-cell row style
-                    if (R > 0 && C === 0) {
-                        const row = resultData[R];
-                        const hasSingleCell = row.filter(cell => cell).length === 1;
-                        if (hasSingleCell) {
-                            ws[cell_ref].s = {...ws[cell_ref].s, ...singleCellStyle};
-                            // Apply yellow to entire row
-                            for (let col = 0; col < row.length; col++) {
-                                const col_ref = XLSX.utils.encode_cell({c: col, r: R});
-                                if (!ws[col_ref]) continue;
-                                ws[col_ref].s = {...ws[col_ref].s, ...singleCellStyle};
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Array for merged cells
-            const merges = [];
-
-            // Analyze data for cell merging
-            for (let r = 0; r < resultData.length; r++) {
-                const row = resultData[r];
-                let hasValue = false;
-                let firstColWithValue = -1;
-                let lastColWithValue = -1;
-
-                for (let c = 0; c < row.length; c++) {
-                    if (row[c] !== undefined && row[c] !== '' && row[c] !== null) {
-                        if (firstColWithValue === -1) firstColWithValue = c;
-                        lastColWithValue = c;
-                        hasValue = true;
-                    }
-                }
-
-                // Merge cells if only first cell has value
-                if (hasValue && firstColWithValue === 0 && lastColWithValue === 0) {
-                    merges.push({
-                        s: {r: r, c: 0}, // Start cell
-                        e: {r: r, c: row.length - 1} // End cell
+                // Проверка на строку с одним значением
+                const filledCells = row.values.slice(1).filter(v => v !== '').length;
+                if (filledCells === 1) {
+                    row.eachCell(cell => {
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: 'FFFF00' }
+                        };
+                        cell.font = { bold: true };
                     });
+                    worksheet.mergeCells(`A${row.number}:F${row.number}`);
                 }
+
+                // Выравнивание для всех ячеек
+                row.eachCell(cell => {
+                    cell.alignment = {
+                        vertical: 'middle',
+                        horizontal: 'center'
+                    };
+                });
             }
 
-            // Apply merges
-            ws['!merges'] = merges;
-
-            // Set column widths
-            if (!ws['!cols']) ws['!cols'] = [];
-            const colWidths = [
-                {wch: 15}, // Column A (SKU)
-                {wch: 20}, // Column B (Brand)
-                {wch: 25}, // Column C (Model)
-                {wch: 12}, // Column D (Wholesale USD)
-                {wch: 15}, // Column E (Retail UAH)
-                {wch: 10}  // Column F (Availability)
+            // Настройка ширины колонок
+            worksheet.columns = [
+                { width: 15 }, { width: 20 }, { width: 25 },
+                { width: 12 }, { width: 15 }, { width: 10 }
             ];
-            ws['!cols'] = colWidths;
 
-            // Add worksheet to workbook
-            XLSX.utils.book_append_sheet(wb, ws, "Combined Data");
-
-            // Generate filename with current date
-            const currentDate = new Date().toISOString().split('T')[0];
-            const fileName = `DSP-Sound_price_${currentDate}.xlsx`;
-
-            // Save file
-            XLSX.writeFile(wb, fileName);
+            // Сохранение файла
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            saveAs(blob, `DSP-Sound_price_${new Date().toISOString().split('T')[0]}.xlsx`);
 
         } catch (error) {
             alert(`Error: ${error.message}`);

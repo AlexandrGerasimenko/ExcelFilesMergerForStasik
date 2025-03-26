@@ -3,28 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel Files Merger for Stasik</title>
-    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+    <title>Excel Files Merger</title>
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/bg.css">
 </head>
 <body>
 <div class="wrap">
     <h1>Excel Files Merger for <span class="strobe">Stasik</span></h1>
-<div class="container">
-    <button id="selectFile1">Select Mystery File</button>
-    <div id="file1Label" class="file-label"></div>
-    <button id="selectFile2">Select Cyclone File</button>
-    <div id="file2Label" class="file-label"></div>
-    <button id="selectFile3">Select AutoSveta File</button>
-    <div id="file3Label" class="file-label"></div>
-    <button id="mergeBtn">Merge Files</button>
-</div>
+    <div class="container">
+        <button id="selectFile1">Select Mystery File</button>
+        <div id="file1Label" class="file-label status-waiting">No file selected</div>
+        <button id="selectFile2">Select Cyclone File</button>
+        <div id="file2Label" class="file-label status-waiting">No file selected</div>
+        <button id="selectFile3">Select AutoSveta File</button>
+        <div id="file3Label" class="file-label status-waiting">No file selected</div>
+        <button id="mergeBtn" disabled>Merge Files</button>
+    </div>
 </div>
 <canvas id='c'></canvas>
 
+<!-- Подключаем библиотеки -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-<script src="./js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="./js/bg.js"></script>
+<script src="./js/main.js"></script>
 </body>
 </html>
