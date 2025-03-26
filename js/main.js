@@ -10,14 +10,22 @@ document.addEventListener('DOMContentLoaded', function () {
     file2Input.accept = '.xlsx,.xls';
     file2Input.style.display = 'none';
 
+    const file3Input = document.createElement('input');
+    file3Input.type = 'file';
+    file3Input.accept = '.xlsx,.xls';
+    file3Input.style.display = 'none';
+
     document.body.appendChild(file1Input);
     document.body.appendChild(file2Input);
+    document.body.appendChild(file3Input);
 
     // Variables to store file data
     let file1 = null;
     let file2 = null;
+    let file3 = null;
     let df1 = null; // Data from first file
     let df2 = null; // Data from second file
+    let df3 = null; // Data from third file
 
     // Event listeners for buttons
     document.getElementById('selectFile1').addEventListener('click', function () {
@@ -26,6 +34,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('selectFile2').addEventListener('click', function () {
         file2Input.click();
+    });
+
+    document.getElementById('selectFile3').addEventListener('click', function () {
+        file3Input.click();
     });
 
     // Handle first file selection
@@ -62,21 +74,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Handle third file selection
+    file3Input.addEventListener('change', function (e) {
+        if (e.target.files.length > 0) {
+            file3 = e.target.files[0];
+            document.getElementById('file3Label').textContent = `Selected file: ${file3.name}`;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                df3 = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+            };
+            reader.readAsArrayBuffer(file3);
+        }
+    });
+
     // Merge button click handler
     document.getElementById('mergeBtn').addEventListener('click', function () {
-        if (!df1 || !df2 || df1.length === 0 || df2.length === 0) {
+        if (!df1 || !df2 || !df3 || df1.length === 0 || df2.length === 0 || df3.length === 0) {
             alert('Not all files are selected or they are empty');
             return;
         }
 
         try {
-            // Remove empty rows
+            // Remove empty rows from all files
             df1 = df1.filter(row => row.some(cell => cell !== null && cell !== ''));
             df2 = df2.filter(row => row.some(cell => cell !== null && cell !== ''));
+            df3 = df3.filter(row => row.some(cell => cell !== null && cell !== ''));
 
             // Remove header rows
             df1 = df1.slice(1); // Remove first row from first file
             df2 = df2.slice(2); // Remove first two rows from second file
+            df3 = df3.slice(2); // Remove first row from third file (adjust as needed)
 
             // Process rows with only "Артикул" (SKU) and empty values
             df1 = df1.map((item) => {
@@ -93,26 +124,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 return item;
             });
 
+            // Process third file data (adjust column indexes as needed)
+            df3 = df3.map((item) => {
+                if (item[0] && !item[1] && !item[2]) {
+                    return [item[0]];
+                }
+                return item;
+            });
+
             // Extract needed columns by index
-            const cycloneColumn = df1.map(row => row[0]); // Column A
-            const mysteryColumn = df2.map(row => row[2] ?? row[0]); // Column C (fallback to A)
+            const cycloneColumn = df1.map(row => row[0]); // Column A from file 1
+            const mysteryColumn = df2.map(row => row[2] ?? row[0]); // Column C (fallback to A) from file 2
+            const thirdFileColumn = df3.map(row => row[0] ? row[0].toString() : row[0]); // Column A from file 3 (adjust as needed)
+
             const fourthColumnFile1 = df1.map(row => row[3]); // Column D from first file
             const secondColumnFile2 = df2.map(row => row[2] ? row[0] : ''); // Column B from second file
+            const thirdFileBrandColumn = df3.map(row => row[1]); // Column B from third file (adjust as needed)
+
             const fifthColumnFile1 = df1.map(row => row[4]); // Column E from first file
             const seventhColumnFile1 = df1.map(row => row[6]); // Column G from first file
             const fifthColumnFile2 = df2.map(row => row[4]); // Column E from second file
+            const thirdFileModelColumn = df3.map(row => row[2]); // Column C from third file (adjust as needed)
+
             const ninthColumnFile1 = df1.map(row => row[8]); // Column I from first file
             const seventhColumnFile2 = df2.map(row => row[6]); // Column G from second file
+            const thirdFilePriceColumn = df3.map(row => row[5] ? Math.ceil((row[5] * 110)) / 100 : ''); // Column F from third file (adjust as needed)
+            const thirdFileRetailPriceColumn = df3.map(row => row[6]); // Column F from third file (adjust as needed)
+
             const plusSymbolColumn = df1.map(i => isNaN(i[6]) ? '' : '+'); // "+" symbol for first file rows
             const tenthColumnFile2 = df2.map(row => row[9]); // Column J from second file
+            const thirdFileAvailabilityColumn = df3.map(row => row[1] ? isNaN(row[3]) ? '-' : '+' : ''); // Column E from third file (adjust as needed)
 
-            // Combine columns
-            const combinedColumnA = cycloneColumn.concat(mysteryColumn);
-            const combinedColumnB = fourthColumnFile1;
+            // Combine columns from all three files
+            const combinedColumnA = cycloneColumn.concat(mysteryColumn, thirdFileColumn);
+            const combinedColumnB = fourthColumnFile1.concat(Array(mysteryColumn.length).fill(''));
             const combinedColumnC = fifthColumnFile1.concat(secondColumnFile2);
-            const combinedColumnD = seventhColumnFile1.concat(fifthColumnFile2);
-            const combinedColumnE = ninthColumnFile1.concat(seventhColumnFile2);
-            const combinedColumnPlus = plusSymbolColumn.concat(tenthColumnFile2);
+            const combinedColumnD = seventhColumnFile1.concat(fifthColumnFile2, thirdFilePriceColumn);
+            const combinedColumnE = ninthColumnFile1.concat(seventhColumnFile2, thirdFileRetailPriceColumn);
+            const combinedColumnPlus = plusSymbolColumn.concat(tenthColumnFile2, thirdFileAvailabilityColumn);
 
             // Create new data array
             const resultData = [];
