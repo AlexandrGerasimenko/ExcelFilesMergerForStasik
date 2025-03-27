@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const secondColumnFile2 = df2.map(row => row[2] ? row[1] : '');
             const thirdFileBrandColumn = df3.map(row => row[1]);
 
-            const fifthColumnFile1 = df1.map(row => row[4]);
+            const fifthColumnFile1 = df1.map(row => row[3] && row[4] ? row[3] + ' ' + row[4] : '');
             const seventhColumnFile1 = df1.map(row => row[6]);
             const fifthColumnFile2 = df2.map(row => row[4]);
             const thirdFileModelColumn = df3.map(row => row[2]);
@@ -123,11 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Объединение данных
             const combined = {
                 A: [...cycloneColumn, ...mysteryColumn, ...thirdFileColumn],
-                B: [...fourthColumnFile1, ...Array(mysteryColumn.length).fill('')],
-                C: [...fifthColumnFile1, ...secondColumnFile2, ...thirdFileBrandColumn],
-                D: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn],
-                E: [...ninthColumnFile1, ...seventhColumnFile2, ...thirdFileRetailPriceColumn],
-                F: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn]
+                B: [...fifthColumnFile1, ...secondColumnFile2, ...thirdFileBrandColumn],
+                C: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn],
+                D: [...ninthColumnFile1, ...seventhColumnFile2, ...thirdFileRetailPriceColumn],
+                E: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn]
             };
 
             // Создаем книгу Excel
@@ -135,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const worksheet = workbook.addWorksheet('Combined Data');
 
             // Добавляем заголовки
-            worksheet.addRow(['Артикул', 'Бренд', 'Модель', 'Оптова USD', 'Роздрібна UAH', 'Наявність']);
+            worksheet.addRow(['Артикул', 'Модель', 'Оптова USD', 'Роздрібна UAH', 'Наявність']);
 
             // Стили для заголовков
             worksheet.getRow(1).eachCell(cell => {
@@ -164,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     combined.C[i] || '',
                     combined.D[i] || '',
                     combined.E[i] || '',
-                    combined.F[i] || ''
                 ]);
 
                 // Проверка на строку с одним значением
