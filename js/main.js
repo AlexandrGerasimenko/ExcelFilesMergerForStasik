@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const thirdFileColumn = df3.map(row => row[0]?.toString() ?? '');
 
             const fourthColumnFile1 = df1.map(row => row[3]);
-            const secondColumnFile2 = df2.map(row => row[2] ? row[0] : '');
+            const secondColumnFile2 = df2.map(row => row[2] ? row[1] : '');
             const thirdFileBrandColumn = df3.map(row => row[1]);
 
             const fifthColumnFile1 = df1.map(row => row[4]);
