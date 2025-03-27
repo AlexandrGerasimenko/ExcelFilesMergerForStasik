@@ -76,7 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Обработка данных (оригинальная логика)
             df1 = df1.filter(row => row.some(cell => cell !== null && cell !== ''));
             df2 = df2.filter(row => row.some(cell => cell !== null && cell !== ''));
-            df3 = df3.filter(row => row.some(cell => cell !== null && cell !== ''));
+            df3 = df3.filter(row => row.some(cell => cell !== null && cell !== '') &&
+                !df1.some(i => row[1]?.includes(i[4])));
 
             df1 = df1.slice(1);
             df2 = df2.slice(2);
