@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const combined = {
                 A: [...cycloneColumn, ...mysteryColumn, ...thirdFileColumn],
                 B: [...fourthColumnFile1, ...Array(mysteryColumn.length).fill('')],
-                C: [...fifthColumnFile1, ...secondColumnFile2],
+                C: [...fifthColumnFile1, ...secondColumnFile2, ...thirdFileBrandColumn],
                 D: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn],
                 E: [...ninthColumnFile1, ...seventhColumnFile2, ...thirdFileRetailPriceColumn],
                 F: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn]
