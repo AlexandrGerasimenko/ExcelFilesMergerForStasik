@@ -7,6 +7,70 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/bg.css">
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔥 Firebase конфиг (замени на свои данные!)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkpYVzdC-gblD5ZQG3Z3eu5rzlUBvyjUs",
+            authDomain: "stasik-ce016.firebaseapp.com",
+            projectId: "stasik-ce016",
+            storageBucket: "stasik-ce016.firebasestorage.app",
+            messagingSenderId: "854368695435",
+            appId: "1:854368695435:web:93b6cea92d213a289e108e",
+            measurementId: "G-RMSEV36N8X"
+        };
+
+        // 🔹 Инициализируем Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // 🔹 Авторизация через Google
+        async function loginWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                alert("Привет, " + result.user.displayName);
+                loadUserFilters();
+            } catch (error) {
+                console.error("Ошибка входа:", error);
+            }
+        }
+
+        // 🔹 Сохраняем фильтры в Firestore
+        async function saveUserFilters() {
+            const user = auth.currentUser;
+            if (!user) return alert("Сначала войди!");
+
+            const selectedCategory = document.getElementById("category").value;
+            const userDocRef = doc(db, "users", user.uid);
+            await setDoc(userDocRef, { filters: { category: selectedCategory } });
+
+            alert("Фильтр сохранён!");
+        }
+
+        // 🔹 Загружаем фильтры из Firestore
+        async function loadUserFilters() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if (docSnap.exists()) {
+                const filters = docSnap.data().filters;
+                document.getElementById("category").value = filters.category;
+                console.log("Фильтр загружен:", filters);
+            }
+        }
+
+        // 🔹 Подключаем функции к глобальному `window`, чтобы вызывать их из HTML
+        window.loginWithGoogle = loginWithGoogle;
+        window.saveUserFilters = saveUserFilters;
+    </script>
 </head>
 <body>
 <div class="wrap">
@@ -20,6 +84,14 @@
         <div id="file3Label" class="file-label status-waiting">No file selected</div>
         <button id="mergeBtn" disabled>Merge Files</button>
     </div>
+    <button onclick="loginWithGoogle()">Войти через Google</button>
+
+    <select id="category">
+        <option value="electronics">Electronics</option>
+        <option value="clothes">Clothes</option>
+    </select>
+    <button onclick="saveUserFilters()">Сохранить фильтр</button>
+
 </div>
 <canvas id='c'></canvas>
 
@@ -29,5 +101,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="./js/bg.js"></script>
 <script src="./js/main.js"></script>
+<script src="./js/index.js"></script>
 </body>
 </html>
