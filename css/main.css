@@ -1,5 +1,6 @@
 body {
     font-family: Arial, sans-serif;
+    height: 100vh;
 }
 
 .wrap {
@@ -27,7 +28,7 @@ button {
 }
 
 .strobe {
-        animation: strobe 0.1s infinite;
+        /*animation: strobe 0.1s infinite;*/
 }
 
 button:hover {
