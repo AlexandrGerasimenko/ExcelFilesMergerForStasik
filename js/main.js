@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.onload = function(e) {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
+                        const workbook = labelId === 'file4Label' ? XLSX.read(data, {
+                            type: 'array',
+                            codepage: 1251
+                        }) : XLSX.read(data, {type: 'array'});
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
                         dataArray.length = 0;
                         dataArray.push(...XLSX.utils.sheet_to_json(sheet, {header: 1}));
@@ -91,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             df1 = df1.slice(1);
             df2 = df2.slice(2);
             df3 = df3.slice(2);
-            df4 = df4.slice(5, -1);
+            df4 = df4.slice(6, -1);
 
             df1 = df1.map(item => {
                 if (item[0] === 'Артикул' && !item[1] && !item[2]) return [item[item.length - 1]];
@@ -119,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 return item;
-            }).filter(row => !row[1] || df2.some(i => i[1] === row[0]));
+            }).filter(row => !row[1] || !df2.some(i => i[1] === row[0]));
 
 
             // Извлечение колонок (оригинальная логика)
