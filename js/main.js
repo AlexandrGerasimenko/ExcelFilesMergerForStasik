@@ -15,14 +15,20 @@ document.addEventListener('DOMContentLoaded', function() {
     file3Input.accept = '.xlsx,.xls';
     file3Input.style.display = 'none';
 
+    const file4Input = document.createElement('input');
+    file4Input.type = 'file';
+    file4Input.accept = '.xlsx,.xls';
+    file4Input.style.display = 'none';
+
     document.body.appendChild(file1Input);
     document.body.appendChild(file2Input);
     document.body.appendChild(file3Input);
+    document.body.appendChild(file4Input);
 
     // Переменные для хранения данных
-    let df1 = [], df2 = [], df3 = [];
+    let df1 = [], df2 = [], df3 = [], df4 = [];
     let filesReady = 0;
-    const totalFiles = 3;
+    const totalFiles = 4;
 
     // Обновление состояния кнопки
     function updateMergeButton() {
@@ -33,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('selectFile1').addEventListener('click', () => file1Input.click());
     document.getElementById('selectFile2').addEventListener('click', () => file2Input.click());
     document.getElementById('selectFile3').addEventListener('click', () => file3Input.click());
+    document.getElementById('selectFile4').addEventListener('click', () => file4Input.click());
 
     // Общая функция обработки файлов
     function handleFileSelect(input, labelId, dataArray) {
@@ -67,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     file1Input.addEventListener('change', handleFileSelect(file1Input, 'file1Label', df1));
     file2Input.addEventListener('change', handleFileSelect(file2Input, 'file2Label', df2));
     file3Input.addEventListener('change', handleFileSelect(file3Input, 'file3Label', df3));
+    file4Input.addEventListener('change', handleFileSelect(file4Input, 'file4Label', df4));
 
     // Основная функция обработки
     document.getElementById('mergeBtn').addEventListener('click', async () => {
@@ -78,10 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
             df2 = df2.filter(row => row.some(cell => cell !== null && cell !== ''));
             df3 = df3.filter(row => row.some(cell => cell !== null && cell !== '') &&
                 !df1.some(i => row[1]?.includes(i[4])));
+            df4 = df4.filter(row => row.some(cell => cell !== null && cell !== ''));
 
             df1 = df1.slice(1);
             df2 = df2.slice(2);
             df3 = df3.slice(2);
+            df4 = df4.slice(5, -1);
 
             df1 = df1.map(item => {
                 if (item[0] === 'Артикул' && !item[1] && !item[2]) return [item[item.length - 1]];
@@ -98,19 +108,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 return item;
             });
 
+
+            df4 = df4.map(item => {
+                if (item[0]) {
+                    const words = item[0].split(' ');
+                    const half = Math.floor(words.length / 2);
+                    if (words.length % 2 === 0 && words.slice(0, half).join(' ') === words.slice(half).join(' ')) {
+                        item[0] = words.slice(0, half).join(' ');
+                        return item;
+                    }
+                }
+                return item;
+            }).filter(row => !row[1] || df2.some(i => i[1] === row[0]));
+
+
             // Извлечение колонок (оригинальная логика)
             const cycloneColumn = df1.map(row => row[0]);
             const mysteryColumn = df2.map(row => row[2] ?? row[0]);
             const thirdFileColumn = df3.map(row => row[0]?.toString() ?? '');
+            const fourthFileColumn = df4.map(row => row[1] ?? row[0]);
 
-            const fourthColumnFile1 = df1.map(row => row[3]);
             const secondColumnFile2 = df2.map(row => row[2] ? row[1] : '');
             const thirdFileBrandColumn = df3.map(row => row[1]);
+            const fourthFileModelColumn = df4.map(row => row[1] ? row[0] : '');
 
             const fifthColumnFile1 = df1.map(row => row[3] && row[4] ? row[3] + ' ' + row[4] : '');
             const seventhColumnFile1 = df1.map(row => row[6]);
             const fifthColumnFile2 = df2.map(row => row[4]);
-            const thirdFileModelColumn = df3.map(row => row[2]);
+            const fourthFilePriceColumn = df4.map(row => row[2]);
 
             const ninthColumnFile1 = df1.map(row => row[8]);
             const seventhColumnFile2 = df2.map(row => row[6]);
@@ -120,14 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const plusSymbolColumn = df1.map(i => isNaN(i[6]) ? '' : '+');
             const tenthColumnFile2 = df2.map(row => row[9]);
             const thirdFileAvailabilityColumn = df3.map(row => row[1] ? isNaN(row[3]) ? '-' : '+' : '');
+            const fourthFileAvailabilityColumn = df4.map(row => row[1] ? '+' : '');
 
             // Объединение данных
             const combined = {
-                A: [...cycloneColumn, ...mysteryColumn, ...thirdFileColumn],
-                B: [...fifthColumnFile1, ...secondColumnFile2, ...thirdFileBrandColumn],
-                C: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn],
+                A: [...cycloneColumn, ...mysteryColumn, ...thirdFileColumn, ...fourthFileColumn],
+                B: [...fifthColumnFile1, ...secondColumnFile2, ...thirdFileBrandColumn, ...fourthFileModelColumn],
+                C: [...seventhColumnFile1, ...fifthColumnFile2, ...thirdFilePriceColumn, ...fourthFilePriceColumn],
                 D: [...ninthColumnFile1, ...seventhColumnFile2, ...thirdFileRetailPriceColumn],
-                E: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn]
+                E: [...plusSymbolColumn, ...tenthColumnFile2, ...thirdFileAvailabilityColumn, ...fourthFileAvailabilityColumn]
             };
 
             // Создаем книгу Excel
