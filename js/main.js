@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                         cell.font = { bold: true };
                     });
-                    worksheet.mergeCells(`A${row.number}:F${row.number}`);
+                    worksheet.mergeCells(`A${row.number}:E${row.number}`);
                 }
 
                 // Выравнивание для всех ячеек
@@ -220,8 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Настройка ширины колонок
             worksheet.columns = [
-                { width: 15 }, { width: 20 }, { width: 25 },
-                { width: 12 }, { width: 15 }, { width: 10 }
+                { width: 15 }, { width: 30 }, { width: 12 },
+                { width: 12 }, { width: 10 }
             ];
 
             // Сохранение файла
