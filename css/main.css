@@ -1,6 +1,10 @@
 body {
     font-family: Arial, sans-serif;
     height: 100vh;
+    background-image: url(../assets/Super-luminance-EL-Flash-Animation-Poster-ezgif.com-speed.gif);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .wrap {
