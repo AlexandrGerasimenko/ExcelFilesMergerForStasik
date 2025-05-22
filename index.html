@@ -7,47 +7,47 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/bg.css">
     <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
-    <style>
-        .beer-survey-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-        }
+<!--    <style>-->
+<!--        .beer-survey-popup {-->
+<!--            display: none;-->
+<!--            position: fixed;-->
+<!--            top: 0;-->
+<!--            left: 0;-->
+<!--            width: 100%;-->
+<!--            height: 100%;-->
+<!--            background-color: rgba(0, 0, 0, 0.7);-->
+<!--            z-index: 1000;-->
+<!--        }-->
 
-        .beer-survey-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            min-width: 300px;
-        }
+<!--        .beer-survey-content {-->
+<!--            position: absolute;-->
+<!--            top: 50%;-->
+<!--            left: 50%;-->
+<!--            transform: translate(-50%, -50%);-->
+<!--            background-color: white;-->
+<!--            padding: 20px;-->
+<!--            border-radius: 10px;-->
+<!--            text-align: center;-->
+<!--            min-width: 300px;-->
+<!--        }-->
 
-        .beer-options {
-            margin: 20px 0;
-        }
+<!--        .beer-options {-->
+<!--            margin: 20px 0;-->
+<!--        }-->
 
-        .beer-option {
-            margin: 10px 0;
-            padding: 10px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
+<!--        .beer-option {-->
+<!--            margin: 10px 0;-->
+<!--            padding: 10px;-->
+<!--            cursor: pointer;-->
+<!--            border: 1px solid #ccc;-->
+<!--            border-radius: 5px;-->
+<!--            transition: background-color 0.3s;-->
+<!--        }-->
 
-        .beer-option:hover {
-            background-color: #f0f0f0;
-        }
-    </style>
+<!--        .beer-option:hover {-->
+<!--            background-color: #f0f0f0;-->
+<!--        }-->
+<!--    </style>-->
     <script type="module">
         import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import {
@@ -124,17 +124,18 @@
 </head>
 <body>
 <!-- Beer Survey Popup -->
-<div id="beerSurvey" class="beer-survey-popup">
-    <div class="beer-survey-content">
-        <h2>Какое пиво - вкуснее?</h2>
-        <div class="beer-options">
-            <div class="beer-option" onclick="checkAnswer('IPA')">IPA</div>
-            <div class="beer-option" onclick="checkAnswer('Львiвське')">Львiвське</div>
-        </div>
-    </div>
-</div>
+<!--<div id="beerSurvey" class="beer-survey-popup">-->
+<!--    <div class="beer-survey-content">-->
+<!--        <h2>Какое пиво - вкуснее?</h2>-->
+<!--        <div class="beer-options">-->
+<!--            <div class="beer-option" onclick="checkAnswer('IPA')">IPA</div>-->
+<!--            <div class="beer-option" onclick="checkAnswer('Львiвське')">Львiвське</div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
-<div class="wrap" style="display: none;">
+<div class="wrap" >
+<!--<div class="wrap" style="display: none;">-->
     <h1>Excel Files Merger for <span class="strobe">Stasik</span></h1>
     <div class="container">
         <button id="selectFile1">Select Mystery File</button>
@@ -165,20 +166,20 @@
 <script src="./js/main.js"></script>
 <script src="./js/index.js"></script>
 
-<script>
-    // Show beer survey popup when page loads
-    window.onload = function () {
-        document.getElementById('beerSurvey').style.display = 'block';
-    }
+<!--<script>-->
+<!--    // Show beer survey popup when page loads-->
+<!--    window.onload = function () {-->
+<!--        document.getElementById('beerSurvey').style.display = 'block';-->
+<!--    }-->
 
-    function checkAnswer(answer) {
-        if (answer === 'Львiвське') {
-            document.getElementById('beerSurvey').style.display = 'none';
-            document.querySelector('.wrap').style.display = 'block';
-        } else {
-            alert('Ответ неправильный');
-        }
-    }
-</script>
+<!--    function checkAnswer(answer) {-->
+<!--        if (answer === 'Львiвське') {-->
+<!--            document.getElementById('beerSurvey').style.display = 'none';-->
+<!--            document.querySelector('.wrap').style.display = 'block';-->
+<!--        } else {-->
+<!--            alert('Ответ неправильный');-->
+<!--        }-->
+<!--    }-->
+<!--</script>-->
 </body>
 </html>
